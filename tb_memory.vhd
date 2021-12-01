@@ -52,7 +52,7 @@ begin
 	   	clk <= '1';
 		
 		wait for clk_per;
-		assert(ir = x"210ABF2A")
+		assert(ir = x"01285024")
 		report "test failed for pc = 0-3" severity error;  
 		clk <= '0';
 		
@@ -79,7 +79,7 @@ begin
 	   	clk <= '1';
 		   
 		wait for clk_per;
-		assert(ir = x"0423780F")
+		assert(ir = x"01285020")
 		report "test failed for pc = 4-7" severity error;  
 		clk <= '0';
 		
@@ -106,7 +106,7 @@ begin
 	   	clk <= '1';
 		   
 		wait for clk_per;
-		assert(ir = x"FF223344")
+		assert(ir = x"8E110001")
 		report "test failed for pc = 9-12" severity error;  	
 		
 		wait; 
