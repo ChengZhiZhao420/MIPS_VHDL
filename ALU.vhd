@@ -18,21 +18,21 @@ begin
 	begin
 		case alu_control is
 			when "0000" =>
-				result <= std_logic_vector(signed(a)) + signed(b)); -- add
-			when "0001" =>
-				result <= std_logic_vector(signed(a) - signed(b)); -- sub
-			when "0010" =>
 				result <= a and b; -- and
-			when "0011" =>
+			when "0001" =>
 				result <= a or b; -- or
-			when "0100" =>
-				result => a xor b; -- xor
-			when "0101" =>		-- set on less than
+			when "0010" =>
+				result <= std_logic_vector(signed(a)) + signed(b)); -- add
+			when "0110" =>
+				result <= std_logic_vector(signed(a) - signed(b)); -- sub
+			when "01111" =>		-- set on less than
 				if (signed(a) < signed(b)) then
 					result <= x"00000001";
 				else
 					result <= x"00000000";
 				end if;
+			when "1100" =>
+				result => a xor b; -- xor
 			when others => NULL
 				result => x"00000000";
 		end case;
