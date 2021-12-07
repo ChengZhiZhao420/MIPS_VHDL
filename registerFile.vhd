@@ -1,72 +1,155 @@
--- Dharam Kathiriya
+--ChengZhi Zhao
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity registerFile is
-	port(	
-		reg_write : in std_logic;   -- register write
-	 	read_reg_1 : in std_logic_vector(4 downto 0);
-		read_reg_2 : in std_logic_vector(4 downto 0);
-		write_reg : in std_logic_vector(4 downto 0);
-		write_data : in std_logic_vector(31 downto 0);
-		read_data_1 : out std_logic_vector(31 downto 0);
-		read_data_2 : out std_logic_vector(31 downto 0)
-		
-	);
+	port(readR1 , readR2, writeR :in std_logic_vector(4 downto 0);
+	writeData :in std_logic_vector(31 downto 0);
+	RegWrite, clk :in std_logic;
+	ReadData1, ReadData2 :out std_logic_vector(31 downto 0));
 end registerFile;
 
-architecture bhv of registerFile is
-	-- array for register file type
-	type reg_type is array(0 to 31) of std_logic_vector(31 downto 0);	
-	-- 32 registers (each register of 4 bytes)
-	signal reg_array: reg_type := (
-		x"00000000", --$zero
-		x"00000001", --$at
-		x"00000002", --$v0
-		x"00000003", --$v1
-		x"00000004", --$a0
-		x"00000005", --$a1
-		x"00000006", --$a2
-		x"00000007", --$a3
-		x"00000008", --$t0
-		x"00000009", --$t1
-		x"0000000A", --$t2
-		x"0000000B", --$t3
-		x"0000000C", --$t4
-		x"0000000D", --$t5
-		x"0000000E", --$t6
-		x"0000000F", --$t7
-		x"00000011", --$s0
-		x"00000012", --$s1
-		x"00000013", --$s2
-		x"00000014", --$s3
-		x"00000015", --$s4
-		x"00000016", --$s5
-		x"00000017", --$s6
-		x"00000018", --$s7
-		x"00000019", --$t8
-		x"0000001A", --$t9
-		x"0000001B", --$k0
-		x"0000001C", --$k1
-		x"0000001D", --$global pointer
-		x"0000001E", --$stack pointer
-		x"0000001F", --$frame pointer
-		x"00000020" --$return address
-	);	
+architecture behavior of registerFile is
+type registerMemory is array(0 to 103) of std_logic_vector(7 downto 0);
+signal registerArray : registerMemory :=(
+		x"00",
+		x"00",
+		x"00",
+		x"00", --$zero
+		x"FF",
+		x"12",
+		x"21",
+		x"11", --$at
+		x"AB",
+		x"C2",
+		x"22",
+		x"22", --$v0
+		x"33",
+		x"3B",
+		x"C3",
+		x"33", --$v1
+		x"4D",
+		x"C2",
+		x"44",
+		x"44", --$a0
+		x"34",
+		x"25",
+		x"53",
+		x"55", --$a1
+		x"60",
+		x"00",
+		x"00",
+		x"06", --$a2
+		x"00",
+		x"00",
+		x"00",
+		x"07", --$a3
+		x"80",
+		x"00",
+		x"88",
+		x"88", --$t0
+		x"99",
+		x"00",
+		x"00",
+		x"99", --$t1
+		x"aa",
+		x"00",
+		x"00",
+		x"a2", --$t2
+		x"00",
+		x"bb",
+		x"bb",
+		x"bb", --$t3
+		x"00",
+		x"00",
+		x"cc",
+		x"cc", --$t4
+		x"23",
+		x"33",
+		x"dd",
+		x"dd", --$t5
+		x"53",
+		x"34",
+		x"44",
+		x"ee", --$t6
+		x"f2",
+		x"3f",
+		x"52",
+		x"2f", --$t7
+		x"00",
+		x"44",
+		x"40",
+		x"00", --$s0
+		x"11",
+		x"51",
+		x"11",
+		x"11", --$s1
+		x"22",
+		x"31",
+		x"22",
+		x"22", --$s2
+		x"34",
+		x"52",
+		x"23",
+		x"33", --$s3
+		x"44",
+		x"53",
+		x"43",
+		x"52", --$s4
+		x"AB",
+		x"DF",
+		x"25",
+		x"55", --$s5
+		x"66",
+		x"64",
+		x"16",
+		x"86", --$s6
+		x"7F",
+		x"FF",
+		x"FF",
+		x"F7", --$s7
+		x"88",
+		x"23",
+		x"12",
+		x"88", --$t8
+		x"95",
+		x"12",
+		x"31",
+		x"2F" --$t9
+	);
+signal count :integer:= 0;
+signal index1, index2 :integer;
 begin
-	-- execute the code based on the signal from Register Write
-	process (reg_write) 
+	process(clk)
 	begin
-		-- write data to the register if reg_write is 1
-		if (reg_write = '1') then
-			reg_array(to_integer(unsigned(write_reg))) <= write_data;
+		if(count > 3) then	
+			count <= 0;
+		end if;
+
+		index1 <= ((to_integer(unsigned(readR1)) * 4));
+		index2 <= ((to_integer(unsigned(readR2)) * 4));
+
+		if(rising_edge(clk)) then	
+
+			if(RegWrite = '1') then
+				registerArray(to_integer(unsigned(writeR))) <= writeData;
+			else
+				if(count = 0) then
+					readData1(31 downto 24) <= registerArray(index1 + count);
+					readData2(31 downto 24) <= registerArray(index2 + count);
+				elsif(count = 1) then
+					readData1(23 downto 16) <= registerArray(index1 + count);
+					readData2(23 downto 16) <= registerArray(index2 + count);
+				elsif(count = 2) then
+					readData1(15 downto 8) <= registerArray(index1 + count);
+					readData2(15 downto 8) <= registerArray(index2 + count);
+				elsif(count = 3) then
+					readData1(7 downto 0) <= registerArray(index1 + count);
+					readData2(7 downto 0) <= registerArray(index2 + count);
+				end if;
+				count <= count + 1;
+			end if;
 		end if;
 	end process;
-	-- output data
-	read_data_1 <= reg_array(to_integer(unsigned(read_reg_1)));
-	read_data_2 <= reg_array(to_integer(unsigned(read_reg_2)));
-end bhv;		
-      
-
-				
+end behavior;
