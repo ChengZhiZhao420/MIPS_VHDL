@@ -1,6 +1,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+entity tb_alu is
+end tb_alu;
+	
 architecture behav of tb_alu is
 	--inputs
 	signal tb_a : std_logic_vector(31 downto 0) := (others => '0');
@@ -11,11 +14,11 @@ architecture behav of tb_alu is
 	signal tb_zero : std_logic;
 
 begin
-	uu_test : entity work.ALU(behavioral)
+	uu_test : entity work.ALU
 		port map( a => tb_a,
 		b => tb_b,
-		control => tb_control,
-		result => tb_result,
+		alu_control => tb_control,
+		alu_result => tb_result,
 		zero => tb_zero
 		);
 -- stimulus
