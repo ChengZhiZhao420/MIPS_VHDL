@@ -26,12 +26,15 @@ begin
 						control <= "0000"; -- add
 					when "100010" => -- 22h
 						control <= "0001"; -- sub
-					when "100
+					when "100011" =>
 						control <= "0010"; -- and
-					when
+					when "100100" =>
 						control <= "0011"; -- or
-					when
+					when "100101" =>
 						control <= "0100"; -- xor
-					when
+					when "100110" =>
 						control <= "0101"; -- slt
+					when others => null;
+		end case;
+	end process;
 end behav;
