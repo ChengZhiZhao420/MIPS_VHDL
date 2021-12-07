@@ -1,3 +1,5 @@
+
+
 --Idenia Ayala
 library ieee;
 use ieee.std_logic_1164.all;
@@ -33,7 +35,7 @@ begin
 				else
 					result <= x"00000000";
 				end if;
-			when others => 
+			when others => null
 				result <= x"00000000";
 		end case;
 
@@ -43,6 +45,6 @@ begin
 		zero <= '0';
 	end if;
 	alu_result <= result;
+
 	end process;
 end behav;
-
