@@ -6,30 +6,26 @@ entity MIPS is
 end MIPS;
 
 architecture behavior of MIPS is
-signal memR, RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite :std_logic;
-signal programCountIn, programCountOut :std_logic_vector(0 to 7);
-signal ir, read_data_1, read_data_2, write_data :std_logic_vector(31 downto 0);
-signal read_reg_1, read_reg_2, write_reg :std_logic_vector(4 downto 0);	
+signal memR, RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite:std_logic;
+signal ir, instruction, read_data_1, read_data_2, write_data, readData:std_logic_vector(31 downto 0);
+signal read_reg_1, read_reg_2, write_reg :std_logic_vector(4 downto 0);
+signal control : std_logic_vector (3 downto 0);
 signal ALUOp :std_logic_vector(0 to 1);
-
+signal alu_result : std_logic_vector(31 downto 0);
+signal count :integer;
 begin
 	memR <= '1';
-	
-	programCounter: entity work.programCount port map(
-		programCountIn => programCountIn,
-		programCountOut => programCountOut,
-		clk => clk
-	);
-	
 	InstructionMemory: entity work.memory port map(
 		clk => clk,
 		ir => ir,
-		memR => memR 
+		memR => memR ,
+		count => count
 	);
+	instruction <= ir when count = 3;
 	
 	controlUnit: entity work.controlUnit port map(
 		clk => clk,
-		instr => ir(31 downto 26),
+		instr => instruction(31 downto 26),
 		RegDst => RegDst,
 		Jump => Jump,
 		Branch => Branch,
@@ -40,27 +36,31 @@ begin
 		RegWrite => RegWrite,
 		ALUOp => ALUOp,
 		reset => reset
-	); 
-	
-	process
-	begin
-		if(RegDst = '0') then
-			read_reg_2 <= ir(20 downto 16);
-		else
-			read_reg_2 <= "00000"; 
-			write_reg <= ir(15 downto 11);
-		end if;
-		wait;
-	end process;
-		
-	registerFile: entity work.registerFile port map(	
-		read_reg_1 => ir(25 downto 21),
-		read_reg_2 => read_reg_2,
-		read_data_1 => read_data_1,
-		read_data_2 => read_data_2,
-		write_reg => write_reg,
-		reg_write => RegWrite,
-		write_data => write_data
 	);
+	write_reg <= instruction(20 downto 16) when RegDst = '0' else instruction(15 downto 11);
+	RegWrite <= '0';
+	registerFile: entity work.registerFile port map(	
+		clk => clk,
+		readR1 => instruction(25 downto 21),
+		readR2 => instruction(20 downto 16),
+		ReadData1 => read_data_1,
+		ReadData2 => read_data_2,
+		writeR => write_reg,
+		RegWrite => RegWrite,
+		writeData => write_data
+	);
+
+	ALU_contorl: entity work.alu_control port map(
+		op => ALUOp,
+		funct => ir(31 downto 26),
+		control => control);
 		
+		
+	ALU: entity work.alu port map(
+		clk => clk,
+		a => read_data_1,
+		b => read_data_2,
+		alu_control => control,
+		alu_result => alu_result);
+	
 end behavior;
