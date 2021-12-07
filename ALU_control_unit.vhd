@@ -21,18 +21,18 @@ begin
 			when "10" => 	--set on less than
 			control => <= "0101";
 			when "11" => 
-				case funct is 
+				case funct is 	-- r-type instructions
 					when "100000" => --20h
 						control <= "0000"; -- add
 					when "100010" => -- 22h
 						control <= "0001"; -- sub
-					when "100011" =>
-						control <= "0010"; -- and
 					when "100100" =>
-						control <= "0011"; -- or
+						control <= "0010"; -- and
 					when "100101" =>
-						control <= "0100"; -- xor
+						control <= "0011"; -- or
 					when "100110" =>
+						control <= "0100"; -- xor
+					when "101010" =>
 						control <= "0101"; -- slt
 					when others => null;
 		end case;
