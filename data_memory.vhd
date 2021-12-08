@@ -12,7 +12,6 @@ end data_memory;
 
 architecture behavior of data_memory is
 type memory is array (0 to 19) of std_logic_vector(0 to 7);
-signal base_key :integer:= 500;
 signal dataMemory : memory:=(
 x"21",
 x"0A",
@@ -44,24 +43,24 @@ begin
 		end if;
 		if(rising_edge(clk) and memW = '1') then
 			if(count = 0) then
-				dataMemory(to_integer(unsigned(address)) - base_key + count) <= writeData(31 downto 24);
+				dataMemory(to_integer(unsigned(address)) + count) <= writeData(31 downto 24);
 			elsif(count = 1) then
-				dataMemory(to_integer(unsigned(address)) - base_key + count) <= writeData(23 downto 16);
+				dataMemory(to_integer(unsigned(address)) + count) <= writeData(23 downto 16);
 			elsif(count = 2) then
-				dataMemory(to_integer(unsigned(address)) - base_key + count) <= writeData(15 downto 8);
+				dataMemory(to_integer(unsigned(address)) + count) <= writeData(15 downto 8);
 			else
-				dataMemory(to_integer(unsigned(address)) - base_key + count) <= writeData(7 downto 0);
+				dataMemory(to_integer(unsigned(address)) + count) <= writeData(7 downto 0);
 			end if;
 			count <= count + 1;
 		elsif(rising_edge(clk) and memR = '1') then
 			if(count = 0) then
-				readData(31 downto 24) <= dataMemory(to_integer(unsigned(address)) - base_key + count);
+				readData(31 downto 24) <= dataMemory(to_integer(unsigned(address)) + count);
 			elsif(count = 1) then
-				readData(23 downto 16) <= dataMemory(to_integer(unsigned(address)) - base_key + count);
+				readData(23 downto 16) <= dataMemory(to_integer(unsigned(address)) + count);
 			elsif(count = 2) then
-				readData(15 downto 8) <= dataMemory(to_integer(unsigned(address)) - base_key + count); 
+				readData(15 downto 8) <= dataMemory(to_integer(unsigned(address)) + count); 
 			else
-				readData(7 downto 0) <= dataMemory(to_integer(unsigned(address)) - base_key + count);
+				readData(7 downto 0) <= dataMemory(to_integer(unsigned(address)) + count);
 			end if;
 			count <= count + 1;
 		end if;
