@@ -7,7 +7,7 @@ end MIPS;
 
 architecture behavior of MIPS is
 signal memR, RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite:std_logic;
-signal ir, instruction, read_data_1, read_data_2, write_data, readData:std_logic_vector(31 downto 0);
+signal ir, instruction, read_data_1, read_data_2, read2, write_data, readData:std_logic_vector(31 downto 0);
 signal read_reg_1, read_reg_2, write_reg :std_logic_vector(4 downto 0);
 signal control : std_logic_vector (3 downto 0);
 signal ALUOp :std_logic_vector(0 to 1);
@@ -21,11 +21,10 @@ begin
 		memR => memR ,
 		count => count
 	);
-	instruction <= ir when count = 3;
 	
 	controlUnit: entity work.controlUnit port map(
 		clk => clk,
-		instr => instruction(31 downto 26),
+		instr => ir(31 downto 26),
 		RegDst => RegDst,
 		Jump => Jump,
 		Branch => Branch,
@@ -37,30 +36,34 @@ begin
 		ALUOp => ALUOp,
 		reset => reset
 	);
-	write_reg <= instruction(20 downto 16) when RegDst = '0' else instruction(15 downto 11);
-	RegWrite <= '0';
+	write_reg <= ir(20 downto 16) when RegDst = '0' else ir(15 downto 11);
+
 	registerFile: entity work.registerFile port map(	
 		clk => clk,
-		readR1 => instruction(25 downto 21),
-		readR2 => instruction(20 downto 16),
+		readR1 => ir(25 downto 21),
+		readR2 => ir(20 downto 16),
 		ReadData1 => read_data_1,
 		ReadData2 => read_data_2,
 		writeR => write_reg,
 		RegWrite => RegWrite,
-		writeData => write_data
+		writeData => alu_result
 	);
 
+	
 	ALU_contorl: entity work.alu_control port map(
 		op => ALUOp,
-		funct => ir(31 downto 26),
+		funct => ir(5 downto 0),
 		control => control);
-		
+
+	read2 <= read_data_2 when ALUSrc = '0' else  x"0000" & ir(15 downto 0);
 		
 	ALU: entity work.alu port map(
 		clk => clk,
 		a => read_data_1,
-		b => read_data_2,
+		b => read2,
 		alu_control => control,
 		alu_result => alu_result);
+
+	--Data_memory: entity work.data_memory port map(
 	
 end behavior;
