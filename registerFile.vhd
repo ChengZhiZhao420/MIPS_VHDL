@@ -49,107 +49,127 @@ signal registerArray : registerMemory :=(
 		x"00",
 		x"88",
 		x"88", --$t0
-		x"99",
 		x"00",
 		x"00",
-		x"99", --$t1
-		x"aa",
+		x"00",
+		x"01", --$t1
 		x"00",
 		x"00",
-		x"a2", --$t2
 		x"00",
-		x"bb",
-		x"bb",
-		x"bb", --$t3
+		x"07", --$t2
 		x"00",
 		x"00",
-		x"cc",
-		x"cc", --$t4
-		x"23",
-		x"33",
-		x"dd",
-		x"dd", --$t5
-		x"53",
-		x"34",
-		x"44",
-		x"ee", --$t6
-		x"f2",
-		x"3f",
-		x"52",
-		x"2f", --$t7
 		x"00",
-		x"44",
-		x"40",
-		x"00", --$s0
-		x"11",
-		x"51",
-		x"11",
-		x"11", --$s1
-		x"22",
-		x"31",
-		x"22",
-		x"22", --$s2
-		x"34",
-		x"52",
-		x"23",
+		x"0A", --$t3
+		x"00",
+		x"00",
+		x"00",
+		x"09", --$t4
+		x"00",
+		x"00",
+		x"00",
+		x"10", --$t5
+		x"00",
+		x"00",
+		x"00",
+		x"0F", --$t6
+		x"00",
+		x"00",
+		x"00",
+		x"18", --$t7
+		x"00",
+		x"00",
+		x"00",
+		x"05", --$s0
+		x"00",
+		x"00",
+		x"00",
+		x"01", --$s1
+		x"00",
+		x"00",
+		x"00",
+		x"03", --$s2
+		x"00",
+		x"00",
+		x"00",
 		x"33", --$s3
-		x"44",
-		x"53",
-		x"43",
+		x"00",
+		x"00",
+		x"00",
 		x"52", --$s4
-		x"AB",
-		x"DF",
-		x"25",
+		x"00",
+		x"00",
+		x"00",
 		x"55", --$s5
-		x"66",
-		x"64",
-		x"16",
+		x"00",
+		x"00",
+		x"00",
 		x"86", --$s6
-		x"7F",
-		x"FF",
-		x"FF",
+		x"00",
+		x"00",
+		x"00",
 		x"F7", --$s7
-		x"88",
-		x"23",
-		x"12",
+		x"00",
+		x"00",
+		x"00",
 		x"88", --$t8
-		x"95",
-		x"12",
-		x"31",
+		x"00",
+		x"00",
+		x"00",
 		x"2F" --$t9
 	);
-signal count :integer:= 0;
-signal index1, index2 :integer;
+signal count, count1 :integer:= 0;
+signal index1, index2,index3 :integer;
 begin
 	process(clk)
 	begin
 		if(count > 3) then	
 			count <= 0;
 		end if;
+		
+		if(count1 > 3) then	
+			count <= 0;
+		end if;
 
 		index1 <= ((to_integer(unsigned(readR1)) * 4));
 		index2 <= ((to_integer(unsigned(readR2)) * 4));
-
+		index3 <= ((to_integer(unsigned(writeR)) * 4));
 		if(rising_edge(clk)) then	
 
-			if(RegWrite = '1') then
-				registerArray(to_integer(unsigned(writeR))) <= writeData;
-			else
-				if(count = 0) then
-					readData1(31 downto 24) <= registerArray(index1 + count);
-					readData2(31 downto 24) <= registerArray(index2 + count);
-				elsif(count = 1) then
-					readData1(23 downto 16) <= registerArray(index1 + count);
-					readData2(23 downto 16) <= registerArray(index2 + count);
-				elsif(count = 2) then
-					readData1(15 downto 8) <= registerArray(index1 + count);
-					readData2(15 downto 8) <= registerArray(index2 + count);
-				elsif(count = 3) then
-					readData1(7 downto 0) <= registerArray(index1 + count);
-					readData2(7 downto 0) <= registerArray(index2 + count);
+			if(RegWrite = '1' and writeData(1) /= 'U') then
+				if(count1 = 0) then
+					registerArray(index3 + count1) <= writeData(31 downto 24);
+					
+				elsif(count1 = 1) then
+					registerArray(index3 + count1) <= writeData(23 downto 16);
+				
+				elsif(count1 = 2) then
+					registerArray(index3 + count1) <= writeData(15 downto 8);
+					
+				elsif(count1 = 3) then
+					registerArray(index3 + count1) <= writeData(7 downto 0);
+					
 				end if;
-				count <= count + 1;
+				count1 <= count1 + 1;
 			end if;
+			if(count = 0) then
+				readData1(31 downto 24) <= registerArray(index1 + count);
+				readData2(31 downto 24) <= registerArray(index2 + count);
+
+			elsif(count = 1) then
+				readData1(23 downto 16) <= registerArray(index1 + count);
+				readData2(23 downto 16) <= registerArray(index2 + count);
+
+			elsif(count = 2) then
+				readData1(15 downto 8) <= registerArray(index1 + count);
+				readData2(15 downto 8) <= registerArray(index2 + count);
+
+			elsif(count = 3) then
+				readData1(7 downto 0) <= registerArray(index1 + count);
+				readData2(7 downto 0) <= registerArray(index2 + count);
+
+			end if;
+			count <= count + 1;
 		end if;
 	end process;
 end behavior;
