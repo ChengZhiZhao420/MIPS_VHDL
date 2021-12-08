@@ -11,7 +11,7 @@ entity controlUnit is
 	port(instr :in std_logic_vector(0 to 5);
 	clk, reset :in std_logic;
 	RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite :out std_logic;
-	ALUOp :out std_logic_vector(0 to 1));
+	ALUOp :out std_logic_vector(1 downto 0));
 end controlUnit; 
 
 architecture bhv of controlUnit is 
