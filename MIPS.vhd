@@ -6,20 +6,18 @@ entity MIPS is
 end MIPS;
 
 architecture behavior of MIPS is
-signal memR, RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite:std_logic;
-signal ir, instruction, read_data_1, read_data_2, read2, write_data, readData:std_logic_vector(31 downto 0);
+signal memR, temp1, temp2, RegDst, Jump, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite:std_logic;
+signal ir, instruction, read_data_1, read_data_2, read2, write_data, readData, temp, temp3:std_logic_vector(31 downto 0);
 signal read_reg_1, read_reg_2, write_reg :std_logic_vector(4 downto 0);
 signal control : std_logic_vector (3 downto 0);
 signal ALUOp :std_logic_vector(0 to 1);
 signal alu_result : std_logic_vector(31 downto 0);
-signal count :integer;
 begin
 	memR <= '1';
 	InstructionMemory: entity work.memory port map(
 		clk => clk,
 		ir => ir,
-		memR => memR ,
-		count => count
+		memR => memR
 	);
 	
 	controlUnit: entity work.controlUnit port map(
@@ -36,7 +34,8 @@ begin
 		ALUOp => ALUOp,
 		reset => reset
 	);
-	write_reg <= ir(20 downto 16) when RegDst = '0' else ir(15 downto 11);
+	write_reg <= ir(20 downto 16) when RegDst = '0' else ir(15 downto 11) when RegDst = '1' else "-----";
+	write_data <= alu_result when MemtoReg = '0' else readData;
 
 	registerFile: entity work.registerFile port map(	
 		clk => clk,
@@ -46,12 +45,13 @@ begin
 		ReadData2 => read_data_2,
 		writeR => write_reg,
 		RegWrite => RegWrite,
-		writeData => alu_result
+		writeData => write_data
 	);
 
 	
 	ALU_contorl: entity work.alu_control port map(
 		op => ALUOp,
+		clk => clk,
 		funct => ir(5 downto 0),
 		control => control);
 
@@ -64,6 +64,15 @@ begin
 		alu_control => control,
 		alu_result => alu_result);
 
-	--Data_memory: entity work.data_memory port map(
+	temp1 <= '0' when alu_result(1) = 'U' else '0' when alu_result(1) = 'X' else MemRead;
+	temp2 <= '0' when alu_result(1) = 'U' else '0' when alu_result(1) = 'X' else MemWrite;
+	temp3 <= alu_result;
+	Data_memory: entity work.data_memory port map(
+		address => temp3,
+		memR => temp1,
+		memW => temp2,
+		writeData => read_data_2,
+		clk => clk,
+		readData => readData);
 	
 end behavior;
