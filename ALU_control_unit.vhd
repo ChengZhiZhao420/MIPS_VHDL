@@ -2,14 +2,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity alu_control is 
+entity ALU_control_unit is 
 	port ( op : in std_logic_vector(1 downto 0);
 	funct : in std_logic_vector(5 downto 0);
 	control : out std_logic_vector (3 downto 0)
 	);
-end alu_control;
+end ALU_control_unit;
 
-architecture behav of alu_control is 
+architecture behav of ALU_control_unit is 
 begin
 	process(op, funct)
 	begin
@@ -19,7 +19,7 @@ begin
 			when "01" => 	--sub
 			control <= "0001";
 			when "10" => 	--set on less than
-			control => <= "0101";
+			control => <= "0111";
 			when "11" => 
 				case funct is 	-- r-type instructions
 					when "100000" => --20h
@@ -32,8 +32,12 @@ begin
 						control <= "0011"; -- or
 					when "100110" =>
 						control <= "0100"; -- xor
-					when "101010" =>
-						control <= "0101"; -- slt
+					when "000000" =>
+						control <= "0101"; -- sll
+					when "000010" => 
+                                		control <= "0110"; -- srl
+                           		when "101010" => 
+                                		control <= "0111"; -- slt
 					when others => null;
 		end case;
 	end process;
