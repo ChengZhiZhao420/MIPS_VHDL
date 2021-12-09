@@ -9,7 +9,7 @@ end tb_instructionMemory;
 
 architecture behavior of tb_instructionMemory is
 	--Inputs
-	signal tb_read_Addr : std_logic_vector(31 downto 0) := x"003fffff";
+	signal tb_read_Addr : std_logic_vector(31 downto 0) := 0;
 	--Outputs
 	signal tb_instruction : std_logic_vector(31 downto 0);
 begin
