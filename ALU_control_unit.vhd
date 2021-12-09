@@ -2,43 +2,23 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity ALU_control_unit is 
+entity alu_control is 
 	port ( op : in std_logic_vector(1 downto 0);
 	funct : in std_logic_vector(5 downto 0);
+	clk : in std_logic;
 	control : out std_logic_vector (3 downto 0)
 	);
-end ALU_control_unit;
+end alu_control;
 
-architecture behav of ALU_control_unit is 
+architecture behav of alu_control is 
 begin
-	process(op, funct)
+	process(clk)
 	begin
-		case op is
-			when "00" => 	--add
-			control <= "0000";
-			when "01" => 	--sub
-			control <= "0001";
-			when "10" => 	--set on less than
-			control => <= "0111";
-			when "11" => 
-				case funct is 	-- r-type instructions
-					when "100000" => --20h
-						control <= "0000"; -- add
-					when "100010" => -- 22h
-						control <= "0001"; -- sub
-					when "100100" =>
-						control <= "0010"; -- and
-					when "100101" =>
-						control <= "0011"; -- or
-					when "100110" =>
-						control <= "0100"; -- xor
-					when "000000" =>
-						control <= "0101"; -- sll
-					when "000010" => 
-                                		control <= "0110"; -- srl
-                           		when "101010" => 
-                                		control <= "0111"; -- slt
-					when others => null;
-		end case;
+	if(rising_edge(clk)) then
+		control(3) <= '0'; 
+		control(2) <= op(0) or (op(1) and funct(1)); 
+		control(1) <= not op(1) or not funct(2); 
+		control(0) <= (funct(3) or funct(0)) and op(1);
+	end if;
 	end process;
 end behav;
