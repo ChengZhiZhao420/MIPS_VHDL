@@ -11,58 +11,58 @@ entity data_memory is
 end data_memory;
 
 architecture behavior of data_memory is
-type memory is array (0 to 19) of std_logic_vector(0 to 7);
+type memory is array (0 to 35) of std_logic_vector(31 downto 0);
 signal dataMemory : memory:=(
-x"21",
-x"0A",
-x"BF",
-x"2A",
-x"04",
-x"23",
-x"78",
-x"0F",
-x"FF",
-x"22",
-x"33",
-x"44",
-x"52",
-x"F1",
-x"52",
-x"52",
-x"52",
-x"52",
-x"52",
-x"52"
+		x"00000000", -- initialize data memory
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000",
+		x"00000000"
 );
-signal count:integer:= 0;
+signal index1 :integer;
 begin
 	process(clk)
 	begin
-		if(count > 3) then	
-			count <= 0;
-		end if;
-		if(rising_edge(clk) and memW = '1') then
-			if(count = 0) then
-				dataMemory(to_integer(unsigned(address)) + count) <= writeData(31 downto 24);
-			elsif(count = 1) then
-				dataMemory(to_integer(unsigned(address)) + count) <= writeData(23 downto 16);
-			elsif(count = 2) then
-				dataMemory(to_integer(unsigned(address)) + count) <= writeData(15 downto 8);
-			else
-				dataMemory(to_integer(unsigned(address)) + count) <= writeData(7 downto 0);
+		
+		index1 <= to_integer(unsigned(address));
+		if(rising_edge(clk)) then
+			if(memW = '1') then
+					dataMemory(index1) <= writeData;
+					
+			elsif(memR = '1') then
+					readData <= dataMemory(index1);
 			end if;
-			count <= count + 1;
-		elsif(rising_edge(clk) and memR = '1') then
-			if(count = 0) then
-				readData(31 downto 24) <= dataMemory(to_integer(unsigned(address)) + count);
-			elsif(count = 1) then
-				readData(23 downto 16) <= dataMemory(to_integer(unsigned(address)) + count);
-			elsif(count = 2) then
-				readData(15 downto 8) <= dataMemory(to_integer(unsigned(address)) + count); 
-			else
-				readData(7 downto 0) <= dataMemory(to_integer(unsigned(address)) + count);
-			end if;
-			count <= count + 1;
 		end if;
 	end process;
 end behavior;
